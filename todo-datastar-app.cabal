@@ -10,6 +10,12 @@ category:      Web
 build-type:    Simple
 
 library
+    default-language: GHC2021
+    ghc-options:
+        -Wall
+        -Werror
+
+library datastar-servant
     exposed-modules:  Servant.Datastar
     hs-source-dirs:   lib
     default-language: GHC2021
@@ -31,6 +37,11 @@ library
         -Werror
         -Wunused-imports
         -Wunused-packages
+        -Wmissing-export-lists
+        -Wname-shadowing
+        -Wdeferred-out-of-scope-variables
+        -Wpartial-type-signatures
+        -Wredundant-constraints
 
 library datastar-lucid
     exposed-modules:
@@ -52,6 +63,11 @@ library datastar-lucid
         -Werror
         -Wunused-imports
         -Wunused-packages
+        -Wmissing-export-lists
+        -Wname-shadowing
+        -Wdeferred-out-of-scope-variables
+        -Wpartial-type-signatures
+        -Wredundant-constraints
 
 executable todo-datastar-app
     main-is:          Main.hs
@@ -69,6 +85,7 @@ executable todo-datastar-app
         DeriveGeneric
         DerivingStrategies
         ImportQualifiedPost
+        NamedFieldPuns
         OverloadedStrings
         StrictData
         TypeFamilies
@@ -79,6 +96,7 @@ executable todo-datastar-app
         , bytestring      >= 0.10  && < 1
         , clay            >= 0.14  && < 1
         , datastar-lucid
+        , datastar-servant
         , direct-sqlite   >= 2.3   && < 3
         , http-media      >= 0.8   && < 1
         , http-types      >= 0.12  && < 1
@@ -86,7 +104,6 @@ executable todo-datastar-app
         , servant         >= 0.20  && < 1
         , servant-server  >= 0.19  && < 1
         , text            >= 1.2   && < 3
-        , todo-datastar-app
         , wai             >= 3.2   && < 4
         , warp            >= 3.2   && < 4
     ghc-options:
@@ -95,3 +112,8 @@ executable todo-datastar-app
         -Werror
         -Wunused-imports
         -Wunused-packages
+        -Wmissing-export-lists
+        -Wname-shadowing
+        -Wdeferred-out-of-scope-variables
+        -Wpartial-type-signatures
+        -Wredundant-constraints
