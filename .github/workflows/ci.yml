@@ -48,7 +48,7 @@ jobs:
           $DOCKER load < result
       - name: Deploy
         run: |
-          TAG=$(nix eval .#imageTag --raw)
+          TAG=$(nix eval .#imageTag.x86_64-linux --raw)
           cd /home/paolino/services/todo
           sed -i "s/^VERSION=.*/VERSION=$TAG/" .env 2>/dev/null || echo "VERSION=$TAG" > .env
           $DOCKER compose up -d
