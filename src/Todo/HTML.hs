@@ -62,7 +62,7 @@ indexPage =
     \      </fieldset>\
     \    </form>\
     \    <ul id=\"todo-list\"\
-    \        data-on:load=\"@get('/todos')\">\
+    \        data-init=\"@get('/todos')\">\
     \    </ul>\
     \  </main>\
     \</body>\
