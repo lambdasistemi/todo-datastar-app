@@ -33,6 +33,9 @@ jobs:
         run: nix develop --quiet -c hlint src
 
   deploy:
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     needs: [build, formatting, hlint]
     runs-on: [self-hosted, nixos]
     steps:
