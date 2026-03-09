@@ -1,0 +1,9 @@
+packages: .
+
+source-repository-package
+    type: git
+    location: https://github.com/starfederation/datastar-haskell.git
+    tag: 0880fd20412b40c18b7ba47aabf3288da8fc56cd
+    --sha256: 18w43inylkq3pq3bdpvljlhc7j1m290wmi0hkf3mnk0rpmgr6nqq
+
+constraints: memory < 0.18

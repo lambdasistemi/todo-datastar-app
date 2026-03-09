@@ -1,0 +1,42 @@
+cabal-version: 3.0
+name:          todo-datastar-app
+version:       0.1.0.0
+synopsis:      TODO list app with datastar-hs and SQLite
+license:       MIT
+license-file:  LICENSE
+author:        Paolo Veronelli
+maintainer:    paolo.veronelli@gmail.com
+category:      Web
+build-type:    Simple
+
+executable todo-datastar-app
+    main-is:          Main.hs
+    other-modules:
+        Todo.DB
+        Todo.HTML
+        Todo.Types
+    hs-source-dirs:   src
+    default-language: GHC2021
+    default-extensions:
+        ImportQualifiedPost
+        OverloadedStrings
+        DeriveGeneric
+        DeriveAnyClass
+        DerivingStrategies
+        StrictData
+    build-depends:
+        , base           >= 4.14  && < 5
+        , aeson          >= 2.0   && < 3
+        , bytestring     >= 0.10  && < 1
+        , datastar-hs    >= 0.1   && < 1
+        , direct-sqlite  >= 2.3   && < 3
+        , http-types     >= 0.12  && < 1
+        , text           >= 1.2   && < 3
+        , wai            >= 3.2   && < 4
+        , warp           >= 3.2   && < 4
+    ghc-options:
+        -threaded
+        -Wall
+        -Werror
+        -Wunused-imports
+        -Wunused-packages
