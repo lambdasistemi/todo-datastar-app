@@ -23,14 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check formatting
-        run: nix develop --quiet -c fourmolu -m check src lib
+        run: nix develop --quiet -c fourmolu -m check src lib datastar-lucid
 
   hlint:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
       - name: Run HLint
-        run: nix develop --quiet -c hlint src lib
+        run: nix develop --quiet -c hlint src lib datastar-lucid
 
   deploy:
     if: >-

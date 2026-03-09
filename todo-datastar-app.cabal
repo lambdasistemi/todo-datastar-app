@@ -32,6 +32,25 @@ library
         -Wunused-imports
         -Wunused-packages
 
+library datastar-lucid
+    exposed-modules:  Lucid.Datastar
+    hs-source-dirs:   datastar-lucid
+    default-language: GHC2021
+    default-extensions:
+        GADTs
+        ImportQualifiedPost
+        OverloadedStrings
+    build-depends:
+        , base            >= 4.14  && < 5
+        , lucid           >= 2.11  && < 3
+        , operational     >= 0.2   && < 1
+        , text            >= 1.2   && < 3
+    ghc-options:
+        -Wall
+        -Werror
+        -Wunused-imports
+        -Wunused-packages
+
 executable todo-datastar-app
     main-is:          Main.hs
     other-modules:
