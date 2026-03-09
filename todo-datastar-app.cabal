@@ -33,7 +33,9 @@ library
         -Wunused-packages
 
 library datastar-lucid
-    exposed-modules:  Lucid.Datastar
+    exposed-modules:
+        Data.List.Extra
+        Lucid.Datastar
     hs-source-dirs:   datastar-lucid
     default-language: GHC2021
     default-extensions:

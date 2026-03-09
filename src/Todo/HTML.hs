@@ -3,6 +3,7 @@ module Todo.HTML
     , renderTodoList
     ) where
 
+import Data.List.Extra (collect, item, items, when')
 import Data.Text (Text, pack)
 import Data.Text.Lazy qualified as LT
 import Lucid
@@ -40,9 +41,13 @@ indexPage = renderText $ doctypehtml_ $ do
             h1_ "Todo"
             todoForm
             ul_
-                ( [id_ "todo-list"]
-                    <> datastar
-                        (onInit $ act $ get "/todos")
+                ( collect $ do
+                    item $ id_ "todo-list"
+                    items $
+                        datastar $
+                            onInit $
+                                act $
+                                    get "/todos"
                 )
                 mempty
 
@@ -67,29 +72,30 @@ renderTodoItem Todo{todoId, todoText, todoDone} =
         ]
         $ do
             input_
-                ( [type_ "checkbox"]
-                    <> ([checked_ | todoDone])
-                    <> datastar
-                        ( on "click" [] $
-                            act $
-                                patch toggleUrl
-                        )
+                ( collect $ do
+                    item $ type_ "checkbox"
+                    when' todoDone $ item checked_
+                    items $
+                        datastar $
+                            on "click" [] $
+                                act $
+                                    patch toggleUrl
                 )
             label_
-                ( datastar
-                    ( on "click" [] $
+                ( datastar $
+                    on "click" [] $
                         act $
                             patch toggleUrl
-                    )
                 )
                 $ toHtml todoText
             button_
-                ( [class_ "outline secondary"]
-                    <> datastar
-                        ( on "click" [] $
-                            act $
-                                delete todoUrl
-                        )
+                ( collect $ do
+                    item $ class_ "outline secondary"
+                    items $
+                        datastar $
+                            on "click" [] $
+                                act $
+                                    delete todoUrl
                 )
                 "\215"
   where
@@ -111,12 +117,13 @@ todoForm =
         $ fieldset_ [role_ "group"]
         $ do
             input_
-                ( [ type_ "text"
-                  , placeholder_
-                        "What needs to be done?"
-                  , autocomplete_ "off"
-                  ]
-                    <> datastar (bind "input")
+                ( collect $ do
+                    item $ type_ "text"
+                    item $
+                        placeholder_
+                            "What needs to be done?"
+                    item $ autocomplete_ "off"
+                    items $ datastar $ bind "input"
                 )
             button_ [type_ "submit"] "Add"
 
