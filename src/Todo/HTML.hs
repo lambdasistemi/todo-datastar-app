@@ -7,13 +7,6 @@ import Data.Text (Text, pack)
 import Data.Text.Lazy qualified as LT
 import Lucid
 import Lucid.Datastar
-    ( Modifier (..)
-    , bind
-    , datastar
-    , on
-    , onInit
-    , signal
-    )
 import Todo.Types (Todo (..), TodoId)
 
 -- | Full HTML page served on GET /
@@ -49,7 +42,7 @@ indexPage = renderText $ doctypehtml_ $ do
             ul_
                 ( [id_ "todo-list"]
                     <> datastar
-                        (onInit "@get('/todos')")
+                        (onInit $ act $ get "/todos")
                 )
                 mempty
 
@@ -77,41 +70,32 @@ renderTodoItem Todo{todoId, todoText, todoDone} =
                 ( [type_ "checkbox"]
                     <> ([checked_ | todoDone])
                     <> datastar
-                        ( on
-                            "click"
-                            []
-                            ( "@patch('/todos/"
-                                <> showT todoId
-                                <> "/toggle')"
-                            )
+                        ( on "click" [] $
+                            act $
+                                patch toggleUrl
                         )
                 )
             label_
                 ( datastar
-                    ( on
-                        "click"
-                        []
-                        ( "@patch('/todos/"
-                            <> showT todoId
-                            <> "/toggle')"
-                        )
+                    ( on "click" [] $
+                        act $
+                            patch toggleUrl
                     )
                 )
                 $ toHtml todoText
             button_
-                ( [ class_ "outline secondary"
-                  ]
+                ( [class_ "outline secondary"]
                     <> datastar
-                        ( on
-                            "click"
-                            []
-                            ( "@delete('/todos/"
-                                <> showT todoId
-                                <> "')"
-                            )
+                        ( on "click" [] $
+                            act $
+                                delete todoUrl
                         )
                 )
                 "\215"
+  where
+    toggleUrl =
+        "/todos/" <> showT todoId <> "/toggle"
+    todoUrl = "/todos/" <> showT todoId
 
 -- | The add-todo form
 todoForm :: (Monad m) => HtmlT m ()
@@ -119,12 +103,10 @@ todoForm =
     form_
         ( datastar $ do
             signal "input" "''"
-            on
-                "submit"
-                [Prevent]
-                "$input.trim() \
-                \&& @post('/todos') \
-                \&& ($input = '')"
+            on "submit" [Prevent] $
+                raw "$input.trim()"
+                    &&. act (post "/todos")
+                    &&. assign "input" (raw "''")
         )
         $ fieldset_ [role_ "group"]
         $ do

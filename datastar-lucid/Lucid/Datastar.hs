@@ -28,6 +28,23 @@ module Lucid.Datastar
       -- * Modifiers
     , Modifier (..)
 
+      -- * Actions
+    , Action
+    , get
+    , post
+    , put
+    , patch
+    , delete
+
+      -- * Expressions
+    , Expr
+    , act
+    , raw
+    , sig
+    , assign
+    , (&&.)
+    , renderExpr
+
       -- * Interpreter
     , datastar
     ) where
@@ -50,10 +67,10 @@ data DatastarI a where
     Bind :: Text -> DatastarI ()
     Computed :: Text -> Text -> DatastarI ()
     -- Events
-    On :: Text -> [Modifier] -> Text -> DatastarI ()
-    Init :: [Modifier] -> Text -> DatastarI ()
-    OnIntersect :: [Modifier] -> Text -> DatastarI ()
-    OnInterval :: [Modifier] -> Text -> DatastarI ()
+    On :: Text -> [Modifier] -> Expr -> DatastarI ()
+    Init :: [Modifier] -> Expr -> DatastarI ()
+    OnIntersect :: [Modifier] -> Expr -> DatastarI ()
+    OnInterval :: [Modifier] -> Expr -> DatastarI ()
     -- Display
     Show :: Text -> DatastarI ()
     TextContent :: Text -> DatastarI ()
@@ -108,20 +125,20 @@ computed :: Text -> Text -> Datastar ()
 computed name expr = singleton (Computed name expr)
 
 -- | Attach event handler
-on :: Text -> [Modifier] -> Text -> Datastar ()
+on :: Text -> [Modifier] -> Expr -> Datastar ()
 on event mods expr = singleton (On event mods expr)
 
 -- | Initialize expression on DOM init
-onInit :: Text -> Datastar ()
+onInit :: Expr -> Datastar ()
 onInit expr = singleton (Init [] expr)
 
 -- | Trigger on viewport intersection
-onIntersect :: [Modifier] -> Text -> Datastar ()
+onIntersect :: [Modifier] -> Expr -> Datastar ()
 onIntersect mods expr =
     singleton (OnIntersect mods expr)
 
 -- | Trigger at intervals
-onInterval :: [Modifier] -> Text -> Datastar ()
+onInterval :: [Modifier] -> Expr -> Datastar ()
 onInterval mods expr =
     singleton (OnInterval mods expr)
 
@@ -153,6 +170,81 @@ indicator name = singleton (Indicator name)
 persist :: Maybe Text -> [Modifier] -> Datastar ()
 persist key mods = singleton (Persist key mods)
 
+-- | A datastar backend action (@get, @post, etc.)
+data Action = Action Text Text
+    deriving (Show, Eq)
+
+-- | @get('/url')
+get :: Text -> Action
+get = Action "get"
+
+-- | @post('/url')
+post :: Text -> Action
+post = Action "post"
+
+-- | @put('/url')
+put :: Text -> Action
+put = Action "put"
+
+-- | @patch('/url')
+patch :: Text -> Action
+patch = Action "patch"
+
+-- | @delete('/url')
+delete :: Text -> Action
+delete = Action "delete"
+
+-- | Render an action to its JS expression
+renderAction :: Action -> Text
+renderAction (Action method url) =
+    "@" <> method <> "('" <> url <> "')"
+
+-- | A datastar JS expression
+data Expr
+    = -- | Backend action
+      Act Action
+    | -- | Raw JS expression
+      Raw Text
+    | -- | Signal reference ($name)
+      Sig Text
+    | -- | Assignment ($name = expr)
+      Assign Text Expr
+    | -- | Logical AND (expr && expr)
+      And Expr Expr
+    deriving (Show, Eq)
+
+-- | Backend action expression
+act :: Action -> Expr
+act = Act
+
+-- | Raw JS expression
+raw :: Text -> Expr
+raw = Raw
+
+-- | Signal reference ($name)
+sig :: Text -> Expr
+sig = Sig
+
+-- | Assignment ($name = expr)
+assign :: Text -> Expr -> Expr
+assign = Assign
+
+-- | Logical AND of two expressions
+(&&.) :: Expr -> Expr -> Expr
+(&&.) = And
+
+infixr 3 &&.
+
+-- | Render an expression to JS text
+renderExpr :: Expr -> Text
+renderExpr (Act a) = renderAction a
+renderExpr (Raw t) = t
+renderExpr (Sig name) = "$" <> name
+renderExpr (Assign name e) =
+    "$" <> name <> " = " <> renderExpr e
+renderExpr (And l r) =
+    renderExpr l <> " && " <> renderExpr r
+
 {- | Interpret a datastar program into
 Lucid attributes
 -}
@@ -172,26 +264,26 @@ datastar = go . view
     go (On event mods expr :>>= k) =
         attr'
             ("data-on:" <> event <> renderMods mods)
-            expr
+            (renderExpr expr)
             k
     go (Init mods expr :>>= k) =
         attr'
             ("data-init" <> renderMods mods)
-            expr
+            (renderExpr expr)
             k
     go (OnIntersect mods expr :>>= k) =
         attr'
             ( "data-on-intersect"
                 <> renderMods mods
             )
-            expr
+            (renderExpr expr)
             k
     go (OnInterval mods expr :>>= k) =
         attr'
             ( "data-on-interval"
                 <> renderMods mods
             )
-            expr
+            (renderExpr expr)
             k
     go (Show expr :>>= k) =
         attr' "data-show" expr k
