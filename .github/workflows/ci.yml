@@ -49,7 +49,7 @@ jobs:
       - name: Deploy
         env:
           IMAGE: ghcr.io/lambdasistemi/todo-datastar-app
-          SERVICE_DIR: /home/paolino/services/todo
+          SERVICE_DIR: /opt/services/todo
         run: |
           TAG=$(nix eval .#imageTag.x86_64-linux --raw)
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml down || true
