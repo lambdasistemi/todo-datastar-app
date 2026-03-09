@@ -31,3 +31,20 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run HLint
         run: nix develop --quiet -c hlint src
+
+  deploy:
+    needs: [build, formatting, hlint]
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and load docker image
+        run: |
+          nix build .#docker-image --quiet
+          docker load < result
+      - name: Deploy
+        run: |
+          TAG=$(nix eval .#imageTag --raw)
+          cd /home/paolino/services/todo
+          sed -i "s/^VERSION=.*/VERSION=$TAG/" .env 2>/dev/null || echo "VERSION=$TAG" > .env
+          docker compose up -d
+          echo "Deployed $TAG to todo.dev.plutimus.com"
