@@ -3,10 +3,13 @@ module Todo.HTML
     , todoList
     ) where
 
+import Clay qualified
 import Data.List.Extra (collect, item, items, when')
 import Data.Text (Text, pack)
+import Data.Text.Lazy qualified as LT
 import Lucid
 import Lucid.Datastar
+import Todo.CSS (todoCss)
 import Todo.Types (Todo (..), TodoId)
 
 -- | Full HTML page served on GET /
@@ -34,7 +37,7 @@ indexPage = doctypehtml_ $ do
                 \bundles/datastar.js"
             ]
             ("" :: Text)
-        style_ css
+        style_ $ LT.toStrict $ Clay.render todoCss
     body_ $
         main_ [class_ "container"] $ do
             h1_ "Todo"
@@ -127,19 +130,3 @@ todoForm =
 
 showT :: TodoId -> Text
 showT = pack . show
-
-css :: Text
-css =
-    ".done { text-decoration: line-through;\
-    \        opacity: 0.6; }\
-    \.todo-item { display: flex;\
-    \             align-items: center;\
-    \             gap: 0.5rem;\
-    \             padding: 0.5rem 0; }\
-    \.todo-item label { flex: 1; margin: 0;\
-    \                   cursor: pointer; }\
-    \.todo-item button { width: auto;\
-    \                    margin: 0;\
-    \                    padding: 0.25rem 0.5rem; }\
-    \#todo-list { list-style: none;\
-    \             padding: 0; }"
