@@ -9,8 +9,8 @@ import Data.Text
     , pack
     , singleton
     )
-import Prelude hiding (concatMap)
 import Todo.Types (Todo (..), TodoId)
+import Prelude hiding (concatMap)
 
 -- | Full HTML page served on GET /
 indexPage :: Text
