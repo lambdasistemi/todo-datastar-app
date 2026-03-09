@@ -1,18 +1,17 @@
 module Todo.HTML
     ( indexPage
-    , renderTodoList
+    , todoList
     ) where
 
 import Data.List.Extra (collect, item, items, when')
 import Data.Text (Text, pack)
-import Data.Text.Lazy qualified as LT
 import Lucid
 import Lucid.Datastar
 import Todo.Types (Todo (..), TodoId)
 
 -- | Full HTML page served on GET /
-indexPage :: LT.Text
-indexPage = renderText $ doctypehtml_ $ do
+indexPage :: Html ()
+indexPage = doctypehtml_ $ do
     head_ $ do
         meta_ [charset_ "utf-8"]
         meta_
@@ -51,12 +50,11 @@ indexPage = renderText $ doctypehtml_ $ do
                 )
                 mempty
 
--- | Render the full todo list as HTML
-renderTodoList :: [Todo] -> LT.Text
-renderTodoList todos =
-    renderText $
-        ul_ [id_ "todo-list"] $
-            mapM_ renderTodoItem todos
+-- | The full todo list
+todoList :: [Todo] -> Html ()
+todoList todos =
+    ul_ [id_ "todo-list"] $
+        mapM_ renderTodoItem todos
 
 -- | Render a single todo item
 renderTodoItem :: (Monad m) => Todo -> HtmlT m ()

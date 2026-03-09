@@ -5,8 +5,8 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text.Lazy qualified as LT
-import Data.Text.Lazy.Encoding qualified as TLE
 import Database.SQLite3 qualified as SQL
+import Lucid (Html, renderBS, renderText)
 import Network.Wai (Application)
 import Network.Wai.Handler.Warp qualified as Warp
 import Servant
@@ -18,7 +18,7 @@ import Servant
 import System.Environment (lookupEnv)
 import Todo.API (API, Signals (..))
 import Todo.DB qualified as DB
-import Todo.HTML (indexPage, renderTodoList)
+import Todo.HTML (indexPage, todoList)
 import Todo.Types (TodoId)
 
 main :: IO ()
@@ -42,13 +42,14 @@ app db =
             :<|> deleteTodo db
 
 serveIndex :: Handler LBS.ByteString
-serveIndex =
-    pure $ TLE.encodeUtf8 indexPage
+serveIndex = pure $ renderBS indexPage
+
+render :: Html () -> Text
+render = LT.toStrict . renderText
 
 getTodos :: SQL.Database -> Handler Text
 getTodos db =
-    liftIO $
-        LT.toStrict . renderTodoList <$> DB.listTodos db
+    liftIO $ render . todoList <$> DB.listTodos db
 
 postTodo
     :: SQL.Database
@@ -56,7 +57,7 @@ postTodo
     -> Handler Text
 postTodo db (Signals txt) = liftIO $ do
     DB.addTodo db txt
-    LT.toStrict . renderTodoList <$> DB.listTodos db
+    render . todoList <$> DB.listTodos db
 
 toggleTodo
     :: SQL.Database
@@ -64,7 +65,7 @@ toggleTodo
     -> Handler Text
 toggleTodo db tid = liftIO $ do
     DB.toggleTodo db tid
-    LT.toStrict . renderTodoList <$> DB.listTodos db
+    render . todoList <$> DB.listTodos db
 
 deleteTodo
     :: SQL.Database
@@ -72,4 +73,4 @@ deleteTodo
     -> Handler Text
 deleteTodo db tid = liftIO $ do
     DB.deleteTodo db tid
-    LT.toStrict . renderTodoList <$> DB.listTodos db
+    render . todoList <$> DB.listTodos db
