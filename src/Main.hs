@@ -4,7 +4,8 @@ import Control.Monad.IO.Class (liftIO)
 import Data.ByteString.Lazy qualified as LBS
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import Data.Text.Encoding qualified as TE
+import Data.Text.Lazy qualified as LT
+import Data.Text.Lazy.Encoding qualified as TLE
 import Database.SQLite3 qualified as SQL
 import Network.Wai (Application)
 import Network.Wai.Handler.Warp qualified as Warp
@@ -42,11 +43,12 @@ app db =
 
 serveIndex :: Handler LBS.ByteString
 serveIndex =
-    pure $ LBS.fromStrict $ TE.encodeUtf8 indexPage
+    pure $ TLE.encodeUtf8 indexPage
 
 getTodos :: SQL.Database -> Handler Text
 getTodos db =
-    liftIO $ renderTodoList <$> DB.listTodos db
+    liftIO $
+        LT.toStrict . renderTodoList <$> DB.listTodos db
 
 postTodo
     :: SQL.Database
@@ -54,7 +56,7 @@ postTodo
     -> Handler Text
 postTodo db (Signals txt) = liftIO $ do
     DB.addTodo db txt
-    renderTodoList <$> DB.listTodos db
+    LT.toStrict . renderTodoList <$> DB.listTodos db
 
 toggleTodo
     :: SQL.Database
@@ -62,7 +64,7 @@ toggleTodo
     -> Handler Text
 toggleTodo db tid = liftIO $ do
     DB.toggleTodo db tid
-    renderTodoList <$> DB.listTodos db
+    LT.toStrict . renderTodoList <$> DB.listTodos db
 
 deleteTodo
     :: SQL.Database
@@ -70,4 +72,4 @@ deleteTodo
     -> Handler Text
 deleteTodo db tid = liftIO $ do
     DB.deleteTodo db tid
-    renderTodoList <$> DB.listTodos db
+    LT.toStrict . renderTodoList <$> DB.listTodos db
