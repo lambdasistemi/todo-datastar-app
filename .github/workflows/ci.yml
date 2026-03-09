@@ -40,14 +40,14 @@ jobs:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
-      - name: Build and load docker image
+      - name: Build and load /run/current-system/sw/bin/docker image
         run: |
-          nix build .#docker-image --quiet
-          docker load < result
+          nix build .#/run/current-system/sw/bin/docker-image --quiet
+          /run/current-system/sw/bin/docker load < result
       - name: Deploy
         run: |
           TAG=$(nix eval .#imageTag --raw)
           cd /home/paolino/services/todo
           sed -i "s/^VERSION=.*/VERSION=$TAG/" .env 2>/dev/null || echo "VERSION=$TAG" > .env
-          docker compose up -d
+          /run/current-system/sw/bin/docker compose up -d
           echo "Deployed $TAG to todo.dev.plutimus.com"
