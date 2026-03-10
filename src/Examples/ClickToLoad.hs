@@ -74,12 +74,12 @@ initialLoad
     :: IORef Int
     -> Handler (ServerSentEventGenerator -> IO ())
 initialLoad ref = liftIO $ do
-    writeIORef ref 0
-    pure $ \gen -> do
-        let rows = generateRows 0 pageSize
+    writeIORef ref pageSize
+    pure $ \gen ->
         sendPatchElements gen $
-            (patchElements $ render rows)
+            (patchElements $ render $ generateRows 0 pageSize)
                 { peSelector = Just "#rows"
+                , peMode = Append
                 }
 
 loadMore
@@ -87,13 +87,12 @@ loadMore
     -> Handler (ServerSentEventGenerator -> IO ())
 loadMore ref = liftIO $ do
     offset <- readIORef ref
-    let newOffset = offset + pageSize
-    writeIORef ref newOffset
+    writeIORef ref (offset + pageSize)
     pure $ \gen ->
         sendPatchElements gen $
             ( patchElements $
                 render $
-                    generateRows newOffset pageSize
+                    generateRows offset pageSize
             )
                 { peSelector = Just "#rows"
                 , peMode = Append
