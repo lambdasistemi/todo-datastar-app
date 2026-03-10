@@ -10,35 +10,49 @@ import Lucid
 indexPage :: Html ()
 indexPage = page "Datastar Examples" $ do
     h1_ "Datastar Examples"
-    p_
+    p_ $ do
         "Haskell implementations using Servant \
-        \+ Lucid + datastar-lucid DSL."
+        \+ Lucid + datastar-lucid DSL. "
+        a_
+            [ href_
+                "https://github.com/lambdasistemi\
+                \/datastar-examples"
+            ]
+            "Source on GitHub"
+        "."
     ul_ $ mapM_ exampleLink examples
 
-exampleLink :: (Text, Text) -> Html ()
-exampleLink (path, name) =
-    li_ $ a_ [href_ path] $ toHtml name
+exampleLink :: (Text, Text, Text) -> Html ()
+exampleLink (path, name, source) =
+    li_ $ do
+        a_ [href_ path] $ toHtml name
+        " ("
+        a_ [href_ (srcBase <> source)] "source"
+        ")"
 
-examples :: [(Text, Text)]
+srcBase :: Text
+srcBase =
+    "https://github.com/lambdasistemi\
+    \/datastar-examples/blob/main/src/Examples/"
+
+examples :: [(Text, Text, Text)]
 examples =
-    [ ("/examples/click-to-edit", "Click To Edit")
-    , ("/examples/delete-row", "Delete Row")
-    , ("/examples/edit-row", "Edit Row")
-    , ("/examples/bulk-update", "Bulk Update")
-    , ("/examples/active-search", "Active Search")
+    [ ("/examples/click-to-edit", "Click To Edit", "ClickToEdit.hs")
+    , ("/examples/delete-row", "Delete Row", "DeleteRow.hs")
+    , ("/examples/edit-row", "Edit Row", "EditRow.hs")
+    , ("/examples/bulk-update", "Bulk Update", "BulkUpdate.hs")
+    , ("/examples/active-search", "Active Search", "ActiveSearch.hs")
     ,
         ( "/examples/inline-validation"
         , "Inline Validation"
+        , "InlineValidation.hs"
         )
-    , ("/examples/click-to-load", "Click To Load")
-    ,
-        ( "/examples/infinite-scroll"
-        , "Infinite Scroll"
-        )
-    , ("/examples/lazy-load", "Lazy Load")
-    , ("/examples/lazy-tabs", "Lazy Tabs")
-    , ("/examples/progress-bar", "Progress Bar")
-    , ("/examples/file-upload", "File Upload")
-    , ("/examples/animations", "Animations")
-    , ("/examples/todo", "TodoMVC")
+    , ("/examples/click-to-load", "Click To Load", "ClickToLoad.hs")
+    , ("/examples/infinite-scroll", "Infinite Scroll", "InfiniteScroll.hs")
+    , ("/examples/lazy-load", "Lazy Load", "LazyLoad.hs")
+    , ("/examples/lazy-tabs", "Lazy Tabs", "LazyTabs.hs")
+    , ("/examples/progress-bar", "Progress Bar", "ProgressBar.hs")
+    , ("/examples/file-upload", "File Upload", "FileUpload.hs")
+    , ("/examples/animations", "Animations", "Animations.hs")
+    , ("/examples/todo", "TodoMVC", "TodoMVC.hs")
     ]
