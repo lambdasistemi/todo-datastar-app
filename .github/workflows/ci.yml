@@ -33,16 +33,18 @@ jobs:
         run: nix develop --quiet --accept-flake-config -c hlint src lib datastar-lucid
 
   deploy:
-    if: github.event_name == 'push'
     needs: [build, formatting, hlint]
     runs-on: [self-hosted, nixos]
     env:
       DOCKER: /run/current-system/sw/bin/docker
+      SERVICE_DIR: /opt/services/datastar-example
+      HOSTNAME: >-
+        ${{ github.event_name == 'push'
+            && 'datastar-examples.plutimus.com'
+            || 'datastar-examples.dev.plutimus.com' }}
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
-        env:
-          SERVICE_DIR: /opt/services/datastar-example
         run: |
           nix build .#docker-image --quiet --accept-flake-config
           TAG=$(nix eval .#imageTag.x86_64-linux --raw --accept-flake-config)
@@ -50,7 +52,7 @@ jobs:
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml down || true
           echo "VERSION=$TAG" > $SERVICE_DIR/.env
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml up -d
-          echo "Deployed $TAG to datastar.dev.plutimus.com"
+          echo "Deployed $TAG to $HOSTNAME"
 
   e2e:
     needs: [build]
