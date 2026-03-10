@@ -53,3 +53,30 @@ jobs:
           echo "VERSION=$TAG" > $SERVICE_DIR/.env
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml up -d
           echo "Deployed $TAG to datastar.dev.plutimus.com"
+
+  e2e:
+    needs: [build]
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build server
+        run: nix build --quiet --accept-flake-config
+      - name: Install test dependencies
+        working-directory: e2e
+        run: nix develop --quiet --accept-flake-config ..# -c npm install
+      - name: Run Playwright tests
+        working-directory: e2e
+        run: |
+          PORT=$((10000 + RANDOM % 50000))
+          PORT=$PORT ../result/bin/datastar-examples &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+          for i in $(seq 1 30); do
+            (echo > /dev/tcp/localhost/$PORT) 2>/dev/null && break
+            sleep 1
+          done
+          export PLAYWRIGHT_BROWSERS_PATH=$(nix eval --quiet --accept-flake-config .#playwrightBrowsers.x86_64-linux --raw)
+          export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+          export PLAYWRIGHT_BASE_URL="http://localhost:$PORT"
+          nix develop --quiet --accept-flake-config ..# -c \
+            npx playwright test --reporter=list
