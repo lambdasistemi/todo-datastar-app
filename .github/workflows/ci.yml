@@ -38,7 +38,7 @@ jobs:
     env:
       DOCKER: /run/current-system/sw/bin/docker
       SERVICE_DIR: /opt/services/datastar-example
-      HOSTNAME: >-
+      DOMAIN: >-
         ${{ github.event_name == 'push'
             && 'datastar-examples.plutimus.com'
             || 'datastar-examples.dev.plutimus.com' }}
@@ -50,9 +50,9 @@ jobs:
           TAG=$(nix eval .#imageTag.x86_64-linux --raw --accept-flake-config)
           $DOCKER load < result
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml down || true
-          echo "VERSION=$TAG" > $SERVICE_DIR/.env
+          printf "VERSION=%s\nDOMAIN=%s\n" "$TAG" "$DOMAIN" > $SERVICE_DIR/.env
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml up -d
-          echo "Deployed $TAG to $HOSTNAME"
+          echo "Deployed $TAG to $DOMAIN"
 
   e2e:
     needs: [build]
