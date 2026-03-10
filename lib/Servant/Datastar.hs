@@ -4,6 +4,9 @@ module Servant.Datastar
     , DatastarSSE
     , DatastarSignals
 
+      -- * Re-export StdMethod for DataKinds
+    , StdMethod (..)
+
       -- * Re-exports from datastar-hs
     , ServerSentEventGenerator
     , PatchElements (..)
@@ -33,6 +36,7 @@ import Hypermedia.Datastar
     , sendPatchSignals
     , sseResponse
     )
+import Network.HTTP.Types (StdMethod (..))
 import Servant
     ( HasServer (..)
     , Proxy (..)

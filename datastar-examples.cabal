@@ -1,7 +1,7 @@
 cabal-version: 3.0
-name:          todo-datastar-app
+name:          datastar-examples
 version:       0.1.0.0
-synopsis:      TODO list app with datastar-hs and SQLite
+synopsis:      Datastar examples with Servant + Lucid
 license:       MIT
 license-file:  LICENSE
 author:        Paolo Veronelli
@@ -29,6 +29,7 @@ library datastar-servant
         , base            >= 4.14  && < 5
         , aeson           >= 2.0   && < 3
         , datastar-hs     >= 0.1   && < 1
+        , http-types      >= 0.12  && < 1
         , servant         >= 0.20  && < 1
         , servant-server  >= 0.19  && < 1
         , text            >= 1.2   && < 3
@@ -69,14 +70,25 @@ library datastar-lucid
         -Wpartial-type-signatures
         -Wredundant-constraints
 
-executable todo-datastar-app
-    main-is:          Main.hs
+executable datastar-examples
+    main-is:          Examples/Main.hs
     other-modules:
-        Todo.API
-        Todo.CSS
-        Todo.DB
-        Todo.HTML
-        Todo.Types
+        Examples.ActiveSearch
+        Examples.Animations
+        Examples.BulkUpdate
+        Examples.ClickToEdit
+        Examples.ClickToLoad
+        Examples.DeleteRow
+        Examples.EditRow
+        Examples.FileUpload
+        Examples.Index
+        Examples.InfiniteScroll
+        Examples.InlineValidation
+        Examples.LazyLoad
+        Examples.LazyTabs
+        Examples.ProgressBar
+        Examples.TodoMVC
+        Layout
     hs-source-dirs:   src
     default-language: GHC2021
     default-extensions:
@@ -94,17 +106,14 @@ executable todo-datastar-app
         , base            >= 4.14  && < 5
         , aeson           >= 2.0   && < 3
         , bytestring      >= 0.10  && < 1
-        , clay            >= 0.14  && < 1
         , datastar-lucid
         , datastar-servant
-        , direct-sqlite   >= 2.3   && < 3
         , http-media      >= 0.8   && < 1
-        , http-types      >= 0.12  && < 1
         , lucid           >= 2.11  && < 3
+        , random          >= 1.2   && < 2
         , servant         >= 0.20  && < 1
         , servant-server  >= 0.19  && < 1
         , text            >= 1.2   && < 3
-        , wai             >= 3.2   && < 4
         , warp            >= 3.2   && < 4
     ghc-options:
         -threaded

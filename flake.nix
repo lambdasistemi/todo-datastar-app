@@ -37,25 +37,21 @@
         };
         flake = project.flake { };
         imageTag = self.dirtyShortRev or self.shortRev or "unknown";
-        exe = flake.packages."todo-datastar-app:exe:todo-datastar-app";
+        exe = flake.packages."datastar-examples:exe:datastar-examples";
       in
       flake
       // {
         packages.default = exe;
         packages.docker-image = pkgs.dockerTools.buildImage {
-          name = "ghcr.io/lambdasistemi/todo-datastar-app";
+          name = "ghcr.io/lambdasistemi/datastar-examples";
           tag = imageTag;
           config = {
-            Cmd = [ "${exe}/bin/todo-datastar-app" ];
+            Cmd = [ "${exe}/bin/datastar-examples" ];
             Env = [
               "PORT=3000"
-              "DB_PATH=/data/todos.db"
             ];
             ExposedPorts = {
               "3000/tcp" = { };
-            };
-            Volumes = {
-              "/data" = { };
             };
           };
         };

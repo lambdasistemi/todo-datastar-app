@@ -48,11 +48,11 @@ jobs:
           $DOCKER load < result
       - name: Deploy
         env:
-          IMAGE: ghcr.io/lambdasistemi/todo-datastar-app
+          IMAGE: ghcr.io/lambdasistemi/datastar-examples
           SERVICE_DIR: /opt/services/todo
         run: |
           TAG=$(nix eval .#imageTag.x86_64-linux --raw)
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml down || true
           echo "VERSION=$TAG" > $SERVICE_DIR/.env
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml up -d
-          echo "Deployed $TAG to todo.dev.plutimus.com"
+          echo "Deployed $TAG"
