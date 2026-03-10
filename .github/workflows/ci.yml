@@ -16,21 +16,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: nix build --quiet
+        run: nix build --quiet --accept-flake-config
 
   formatting:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
       - name: Check formatting
-        run: nix develop --quiet -c fourmolu -m check src lib datastar-lucid
+        run: nix develop --quiet --accept-flake-config -c fourmolu -m check src lib datastar-lucid
 
   hlint:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
       - name: Run HLint
-        run: nix develop --quiet -c hlint src lib datastar-lucid
+        run: nix develop --quiet --accept-flake-config -c hlint src lib datastar-lucid
 
   deploy:
     if: >-
@@ -42,17 +42,14 @@ jobs:
       DOCKER: /run/current-system/sw/bin/docker
     steps:
       - uses: actions/checkout@v4
-      - name: Build and load docker image
-        run: |
-          nix build .#docker-image --quiet
-          $DOCKER load < result
       - name: Deploy
         env:
-          IMAGE: ghcr.io/lambdasistemi/datastar-examples
-          SERVICE_DIR: /opt/services/todo
+          SERVICE_DIR: /opt/services/datastar-example
         run: |
-          TAG=$(nix eval .#imageTag.x86_64-linux --raw)
+          nix build .#docker-image --quiet --accept-flake-config
+          TAG=$(nix eval .#imageTag.x86_64-linux --raw --accept-flake-config)
+          $DOCKER load < result
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml down || true
           echo "VERSION=$TAG" > $SERVICE_DIR/.env
           $DOCKER compose -f $SERVICE_DIR/docker-compose.yaml up -d
-          echo "Deployed $TAG"
+          echo "Deployed $TAG to datastar.dev.plutimus.com"
