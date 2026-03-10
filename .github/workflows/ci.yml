@@ -33,9 +33,7 @@ jobs:
         run: nix develop --quiet --accept-flake-config -c hlint src lib datastar-lucid
 
   deploy:
-    if: >-
-      github.event_name == 'push' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'push'
     needs: [build, formatting, hlint]
     runs-on: [self-hosted, nixos]
     env:
