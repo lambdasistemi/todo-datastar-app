@@ -35,15 +35,7 @@ infiniteScrollPage =
                         th_ "Email"
                         th_ "ID"
                 tbody_ [id_ "rows"] mempty
-            div_
-                ( [id_ "sentinel"]
-                    <> datastar
-                        ( onIntersect [] $
-                            act $
-                                get base
-                        )
-                )
-                "Loading..."
+            sentinelHtml
 
 infiniteScrollServer
     :: IORef Int
@@ -62,19 +54,20 @@ infiniteScrollServer ref = liftIO $ do
         sendPatchElements gen $
             (patchElements $ render sentinelHtml)
                 { peSelector = Just "#sentinel"
+                , peMode = Replace
                 }
-  where
-    sentinelHtml :: Html ()
-    sentinelHtml =
-        div_
-            ( [id_ "sentinel"]
-                <> datastar
-                    ( onIntersect [] $
-                        act $
-                            get base
-                    )
-            )
-            "Loading..."
+
+sentinelHtml :: Html ()
+sentinelHtml =
+    div_
+        ( [id_ "sentinel"]
+            <> datastar
+                ( onIntersect [Once] $
+                    act $
+                        get base
+                )
+        )
+        "Loading..."
 
 base :: Text
 base = "/examples/infinite-scroll/data"
